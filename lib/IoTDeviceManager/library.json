@@ -1,0 +1,48 @@
+{
+  "name": "IoTDeviceManager",
+  "version": "1.0.0",
+  "description": "IoT Device Discovery and Management System for ESP32",
+  "keywords": [
+    "iot",
+    "device",
+    "discovery",
+    "management", 
+    "esp32",
+    "wifi",
+    "hotspot",
+    "http",
+    "api"
+  ],
+  "authors": [
+    {
+      "name": "PioSystem",
+      "email": "admin@piosystem.local"
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/piosystem/iot-device-manager",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/piosystem/iot-device-manager.git"
+  },
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "dependencies": {
+    "ArduinoJson": "^6.21.0",
+    "WiFi": "*",
+    "HTTPClient": "*",
+    "ESPmDNS": "*"
+  },
+  "build": {
+    "includeDir": "src",
+    "srcDir": "src"
+  },
+  "export": {
+    "include": [
+      "src/*",
+      "examples/*",
+      "README.md",
+      "library.json"
+    ]
+  }
+}

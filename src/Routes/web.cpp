@@ -49,6 +49,17 @@ void registerWebRoutes(Router* router) {
 						.status(404);
 		}).name("wifi-test");
 		
+		// IoT Devices route
+		router->get("/iot-devices", [](Request& request) -> Response {
+				if (SPIFFS.exists("/views/iot-devices.html")) {
+						return Response(request.getServerRequest())
+								.file("/views/iot-devices.html");
+				}
+				
+				return Response(request.getServerRequest())
+						.status(404);
+		}).name("iot-devices");
+		
 		// Authentication routes
 		router->get("/login", [](Request& request) -> Response {
 				if (SPIFFS.exists("/views/login.html")) {

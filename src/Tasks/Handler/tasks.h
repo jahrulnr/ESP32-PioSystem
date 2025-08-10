@@ -15,6 +15,10 @@ extern TaskHandle_t displayUpdateTaskHandle;
 extern TaskHandle_t memoryMonitorTaskHandle;
 extern TaskHandle_t autosleepTaskHandle;
 
+// Forward declaration for IoTDeviceManager
+class IoTDeviceManager;
+extern IoTDeviceManager* iotDeviceManager;
+
 void setupTasks();
 
 void handleButtonEvents();

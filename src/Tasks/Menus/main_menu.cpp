@@ -13,6 +13,7 @@ void drawMainMenu() {
     "Scan Networks",
     "Hotspot Status",
     "Connected Clients",
+    "IoT Devices",
     "Settings"
   };
   

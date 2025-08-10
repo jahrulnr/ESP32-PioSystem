@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "iot_device_manager.h"
 
 InputManager inputManager;
 TaskHandle_t inputTaskHandle = NULL;
@@ -92,6 +93,23 @@ void handleButtonEvents() {
         inputManager.clearButton(BTN_BACK);
       }
       break;
+      
+    case MENU_IOT_DEVICES:
+      // In IoT devices screen, BACK button returns to main menu
+      if (inputManager.wasPressed(BTN_BACK)) {
+        currentMenu = MENU_MAIN;
+        drawMainMenu();
+        inputManager.clearButton(BTN_BACK);
+      }
+      // SELECT button triggers a manual scan
+      if (inputManager.wasPressed(BTN_SELECT)) {
+        if (iotDeviceManager != nullptr) {
+          iotDeviceManager->startManualScan();
+        }
+        displayIoTDevices(); // Refresh the display
+        inputManager.clearButton(BTN_SELECT);
+      }
+      break;
   }
 
   inputManager.clearAllButtons();
@@ -142,7 +160,12 @@ void executeMenuAction(int menuItem) {
       displayConnectedClients();
       break;
       
-    case 4: // Settings
+    case 4: // IoT Devices
+      currentMenu = MENU_IOT_DEVICES;
+      displayIoTDevices();
+      break;
+      
+    case 5: // Settings
       currentMenu = MENU_SETTINGS;
       displaySettings();
       break;

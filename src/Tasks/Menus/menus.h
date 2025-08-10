@@ -11,7 +11,8 @@ enum MenuState {
   MENU_WIFI_SCAN,
   MENU_SETTINGS,
   MENU_CLIENTS,
-	MAX_MENU_ITEMS
+  MENU_IOT_DEVICES,
+  MAX_MENU_ITEMS
 };
 
 extern MenuState currentMenu;
@@ -24,5 +25,6 @@ void displayWiFiStatus();
 void displayNetworkList();
 void displayConnectedClients();
 void displaySettings();
+void displayIoTDevices();
 
 #endif
