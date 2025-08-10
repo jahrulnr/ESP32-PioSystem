@@ -17,7 +17,7 @@ void initialize() {
   // Initialize display
   displayManager.init();
   displayManager.clearScreen();
-  displayManager.drawTitle("OSSystem Initializing...");
+  displayManager.drawTitle("PioSystem Initializing...");
   displayManager.drawCenteredText("Please wait...", 40, TFT_WHITE, 2);
   
   // Initialize input manager

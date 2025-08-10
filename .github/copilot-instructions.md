@@ -1,4 +1,4 @@
-# OSSystem Copilot Instructions
+# PioSystem Copilot Instructions
 
 ## Project Overview
 ESP32-S3 IoT device with WiFi hotspot management, dual interfaces (TFT + web), and custom MVC framework.

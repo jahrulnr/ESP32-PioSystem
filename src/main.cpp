@@ -17,7 +17,7 @@ Application* app;
 void setup() {
   // Initialize serial debugging
   DEBUG_BEGIN(115200);
-  DEBUG_PRINTLN("\n=== OSSystem Initialization ===");
+  DEBUG_PRINTLN("\n=== PioSystem Initialization ===");
   
   // Initialize system components
   gpio_install_isr_service(ESP_INTR_FLAG_EDGE);

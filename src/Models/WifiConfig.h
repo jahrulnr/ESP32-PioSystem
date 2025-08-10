@@ -22,7 +22,7 @@ public:
         // Generate a default hostname based on MAC address
         uint8_t mac[6];
         WiFi.macAddress(mac);
-        hostname = String("OSSystem-") + String(mac[4], HEX) + String(mac[5], HEX);
+        hostname = String("PioSystem-") + String(mac[4], HEX) + String(mac[5], HEX);
     }
     
     // Getters

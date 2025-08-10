@@ -1,8 +1,8 @@
-# MVC Framework Implementation for OSSystem Hotspot
+# MVC Framework Implementation for PioSystem Hotspot
 
 ## Overview of Changes
 
-We've implemented an MVC-based architecture for the OSSystem ESP32 project with a focus on WiFi hotspot functionality. Here's what has been added:
+We've implemented an MVC-based architecture for the PioSystem ESP32 project with a focus on WiFi hotspot functionality. Here's what has been added:
 
 ### 1. Controllers
 - Created `WifiController` to handle WiFi hotspot management:
@@ -31,7 +31,7 @@ We've implemented an MVC-based architecture for the OSSystem ESP32 project with 
 ## Usage Instructions
 
 1. Flash the application to your ESP32 device
-2. The device will create a WiFi hotspot with SSID "OSSystem-AP" and password "password123"
+2. The device will create a WiFi hotspot with SSID "PioSystem-AP" and password "password123"
 3. Connect to this hotspot from your phone or computer
 4. Open your web browser and navigate to http://192.168.4.1
 5. You'll see the dashboard interface where you can:

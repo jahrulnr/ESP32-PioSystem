@@ -6,7 +6,7 @@ void displaySettings() {
   
   // Show current settings
   int y = 40;
-  displayManager.drawCenteredText("Device Name: OSSystem", y, TFT_WHITE);
+  displayManager.drawCenteredText("Device Name: PioSystem", y, TFT_WHITE);
   y += 20;
   
   WiFiMode_t mode = wifiManager.getMode();

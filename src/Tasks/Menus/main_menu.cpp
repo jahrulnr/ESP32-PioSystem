@@ -5,7 +5,7 @@ int selectedMenuItem = 0;
 
 void drawMainMenu() {
   displayManager.clearScreen();
-  displayManager.drawTitle("OSSystem Menu");
+  displayManager.drawTitle("PioSystem Menu");
   
   // Menu items
   const char* menuItems[] = {
