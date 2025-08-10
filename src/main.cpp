@@ -13,6 +13,7 @@
 #include "Tasks/Handler/tasks.h"
 
 Application* app;
+HttpClientManager* httpClientManager;
 
 void setup() {
   // Initialize serial debugging
@@ -21,12 +22,17 @@ void setup() {
   
   // Initialize system components
   gpio_install_isr_service(ESP_INTR_FLAG_EDGE);
+  disableLoopWDT();
   pinMode(11, OUTPUT);
   initialize();
     
   // Initialize MVC application
   app = Application::getInstance();
   app->boot();
+
+  httpClientManager = new HttpClientManager();
+  httpClientManager->setDebugEnabled(true);
+  httpClientManager->begin();
     
   // Register routes
   Router* router = app->getRouter();
@@ -44,5 +50,6 @@ void setup() {
 
 // Empty loop() function as required by Arduino framework
 void loop() {
+  vTaskDelay(pdMS_TO_TICKS(10));
   vTaskDelete(NULL); // Delete the loop task to free memory
 }

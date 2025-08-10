@@ -1,10 +1,10 @@
 #include "cpu_freq.h"
 
-uint32_t __lastCPUSet = (uint32_t)CPU_LOW;
+cpu_freq __lastCPUSet = CPU_LOW;
 
 void setCPU(cpu_freq freq) {
-	if (__lastCPUSet == (uint32_t) freq) return;
+	if (__lastCPUSet == freq) return;
 
-	__lastCPUSet = (uint32_t)freq;
+	__lastCPUSet = freq;
 	setCpuFrequencyMhz(__lastCPUSet);
 }

@@ -9,7 +9,7 @@ enum cpu_freq {
 	CPU_LOW = 80,
 };
 
-extern uint32_t __lastCPUSet;
+extern cpu_freq __lastCPUSet;
 
 void setCPU(cpu_freq freq);
 

@@ -6,6 +6,7 @@
 #include "../Controllers/AuthController.h"
 #include "../Controllers/WifiController.h"
 #include "../Controllers/WifiConfigController.h"
+#include "../Controllers/ApiController.h"
 
 void registerWebRoutes(Router* router);
 void registerApiRoutes(Router* router);

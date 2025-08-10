@@ -19,14 +19,6 @@ void WifiClient::fill(const std::map<String, String>& data) {
     
     // Update class properties from attributes
     syncAttributesToProperties();
-    
-    // Debug output after sync
-    Serial.println("WifiClient::fill - Properties after sync:");
-    Serial.printf("  macAddress: %s\n", macAddress.c_str());
-    Serial.printf("  ipAddress: %s\n", ipAddress.c_str());
-    Serial.printf("  hostname: %s\n", hostname.c_str());
-    Serial.printf("  connectionTime: %lu\n", connectionTime);
-    Serial.printf("  rssi: %d\n", rssi);
 }
 
 // Static methods for retrieving WiFi clients
@@ -340,12 +332,6 @@ std::vector<WifiClient*> WifiClient::savedNetworks() {
         
         WifiClient* client = new WifiClient();
         client->fill(record);
-        
-        // Double-check that hostname is correctly set after fill
-        Serial.println("After fill:");
-        Serial.printf("  Hostname property: %s\n", client->getHostname().c_str());
-        Serial.printf("  Hostname attribute: %s\n", client->getAttribute("hostname").c_str());
-        
         client->syncOriginal();
         client->exists = true;
         clients.push_back(client);

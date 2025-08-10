@@ -32,6 +32,8 @@ Enable via `-DSERIAL_DEBUG` in platformio.ini build flags.
 - **Controllers**: Inherit from `Controller`, return `Response` objects with JSON
 - **Routes**: Grouped registration pattern using lambdas in `registerApiRoutes()`
 - **Models**: CSV-based persistence in `data/database/`
+- **API Versioning**: Current routes use `/api/v1/` prefix with middleware chains
+- **Response Helpers**: `json()` and `error()` helper methods in Controller base class
 
 ## Essential Build Commands
 ```bash
@@ -45,19 +47,41 @@ pio run -v | grep -E "(RAM|Flash)"
 pio run -t uploadfs
 ```
 
+**Platform Configuration:**
+- Board: `esp32-s3-devkitc-1` with Arduino framework
+- PSRAM support available but commented out (enable `-DBOARD_HAS_PSRAM` if needed)
+- Build flags include `-DSERIAL_DEBUG` for debug output and FreeRTOS configuration
+
 ## API Response Patterns
-Controllers MUST return structured JSON responses using this exact pattern:
+Controllers use Response objects with fluent interface. Two main patterns exist:
+
+**Standard MVC Pattern (preferred for new code):**
 ```cpp
 Response WifiController::method(Request& request) {
     JsonDocument doc;
-    doc["status"] = "success";  // or "error" 
+    doc["status"] = "success";  // Required status field
     doc["data"] = /* ... */;    // Main response data
     return json(request.getServerRequest(), doc);
 }
 ```
 
-Alternative pattern for error responses:
+**Alternative Response Builder Pattern (current in api.cpp):**
 ```cpp
+Response AuthController::method(Request& request) {
+    JsonDocument response;
+    response["success"] = true;  // Note: uses "success" not "status"
+    response["users"] = JsonArray();
+    
+    return Response(request.getServerRequest())
+            .status(200)
+            .json(response);
+}
+```
+
+**Error Response Pattern:**
+```cpp
+return error(request.getServerRequest(), "Error message");  // Helper method
+// OR
 JsonDocument errorDoc;
 errorDoc["status"] = "error";
 errorDoc["message"] = "Description of error";
@@ -79,6 +103,11 @@ void registerWifiRoutes(Router* router, WiFiManager* wifiManager) {
     });
 }
 ```
+
+**Middleware Patterns:**
+- `/api/v1/` routes use `{"cors", "json", "ratelimit"}` middleware
+- Admin routes add `{"auth", "admin", "json"}` middleware for authentication
+- WiFi routes use `{"cors", "json"}` for public access
 
 ## Hardware Integration Points
 - **Pin Definitions**: `BUTTON_UP=4, BUTTON_DOWN=5, BUTTON_SELECT=9, BUTTON_BACK=6`
