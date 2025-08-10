@@ -1,0 +1,22 @@
+{
+  "name": "FileManager",
+  "version": "1.0.0",
+  "description": "File system manager for SPIFFS and SD card operations",
+  "keywords": "filesystem, spiffs, sdcard, esp32",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "authors": [
+    {
+      "name": "PioSystem",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "dependencies": {
+  },
+  "frameworks": "arduino",
+  "platforms": "espressif32"
+}

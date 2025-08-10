@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSSystem - WiFi Hotspot</title>
+    <link rel="stylesheet" href="/assets/bootstrap.min.css">
+    <style>
+        body {
+            padding-top: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .signal-strength {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+        }
+        .signal-high {
+            background-color: #28a745;
+        }
+        .signal-medium {
+            background-color: #ffc107;
+        }
+        .signal-low {
+            background-color: #dc3545;
+        }
+        .navbar-brand img {
+            height: 30px;
+            margin-right: 10px;
+        }
+        #connection-status {
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <span>OSSystem WiFi Manager</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="nav-dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/wifi-config" id="nav-wifi-config">WiFi Config</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="nav-settings">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="connection-status" class="alert alert-success d-none">
+        Connected to server
+    </div>
+
+    <div class="container mt-4">
+        <div id="dashboard-view">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Access Point Status</h5>
+                            <button class="btn btn-sm btn-primary" id="refresh-status">Refresh</button>
+                        </div>
+                        <div class="card-body">
+                            <div id="ap-status">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Connected Clients</h5>
+                            <span class="badge bg-primary" id="client-count">0</span>
+                        </div>
+                        <div class="card-body">
+                            <div id="client-list">No clients connected</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings-view" class="d-none">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Access Point Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <form id="ap-config-form">
+                        <div class="mb-3">
+                            <label for="ssid" class="form-label">SSID</label>
+                            <input type="text" class="form-control" id="ssid" name="ssid" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password (8+ characters)</label>
+                            <input type="password" class="form-control" id="password" name="password" minlength="8">
+                            <small class="text-muted">Leave blank to keep current password</small>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="channel" class="form-label">Channel</label>
+                                    <select class="form-select" id="channel" name="channel">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="max-connections" class="form-label">Max Connections</label>
+                                    <input type="number" class="form-control" id="max-connections" name="max_connections" min="1" max="8" value="4">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="hidden" name="hidden">
+                            <label class="form-check-label" for="hidden">Hidden SSID</label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="captive-portal" name="captive_portal" checked>
+                            <label class="form-check-label" for="captive-portal">Enable Captive Portal</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Configuration</button>
+                        <button type="button" class="btn btn-danger ms-2" id="restart-ap">Restart Hotspot</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/bootstrap.bundle.js"></script>
+    <script>
+        // DOM elements
+        const dashboardView = document.getElementById('dashboard-view');
+        const settingsView = document.getElementById('settings-view');
+        const navDashboard = document.getElementById('nav-dashboard');
+        const navSettings = document.getElementById('nav-settings');
+        const refreshStatusBtn = document.getElementById('refresh-status');
+        const apStatus = document.getElementById('ap-status');
+        const clientList = document.getElementById('client-list');
+        const clientCount = document.getElementById('client-count');
+        const apConfigForm = document.getElementById('ap-config-form');
+        const restartApBtn = document.getElementById('restart-ap');
+        const connectionStatus = document.getElementById('connection-status');
+        
+        // Navigation
+        navDashboard.addEventListener('click', (e) => {
+            e.preventDefault();
+            dashboardView.classList.remove('d-none');
+            settingsView.classList.add('d-none');
+            navDashboard.classList.add('active');
+            navSettings.classList.remove('active');
+            fetchStatus();
+        });
+        
+        navSettings.addEventListener('click', (e) => {
+            e.preventDefault();
+            dashboardView.classList.add('d-none');
+            settingsView.classList.remove('d-none');
+            navDashboard.classList.remove('active');
+            navSettings.classList.add('active');
+            fetchAPConfig();
+        });
+        
+        // Refresh status
+        refreshStatusBtn.addEventListener('click', fetchStatus);
+        
+        // AP config form submission
+        apConfigForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            updateAPConfig();
+        });
+        
+        // Restart Hotspot
+        restartApBtn.addEventListener('click', restartAP);
+        
+        // WebSocket connection
+        let ws;
+        function connectWebSocket() {
+            ws = new WebSocket(`ws://${window.location.hostname}/ws/wifi`);
+            
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                connectionStatus.textContent = 'Connected to server';
+                connectionStatus.classList.remove('d-none', 'alert-danger');
+                connectionStatus.classList.add('alert-success');
+                setTimeout(() => {
+                    connectionStatus.classList.add('d-none');
+                }, 3000);
+                
+                // Subscribe to updates
+                ws.send(JSON.stringify({
+                    command: 'subscribe',
+                    topic: 'wifi-status'
+                }));
+            };
+            
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                connectionStatus.textContent = 'Disconnected from server';
+                connectionStatus.classList.remove('d-none', 'alert-success');
+                connectionStatus.classList.add('alert-danger');
+                
+                // Try to reconnect after 5 seconds
+                setTimeout(connectWebSocket, 5000);
+            };
+            
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'wifi-status') {
+                        updateStatusDisplay(data);
+                    } else if (data.type === 'client-update') {
+                        updateClientList(data.clients);
+                    }
+                } catch (error) {
+                    console.error('Error parsing WebSocket message:', error);
+                }
+            };
+        }
+        
+        // API functions
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/wifi/status');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                updateStatusDisplay(data);
+                
+                // Also fetch clients
+                fetchClients();
+            } catch (error) {
+                console.error('Error fetching status:', error);
+                apStatus.innerHTML = `<div class="alert alert-danger">Error loading status: ${error.message}</div>`;
+            }
+        }
+        
+        async function fetchClients() {
+            try {
+                const response = await fetch('/api/wifi/clients');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                updateClientList(data.clients);
+            } catch (error) {
+                console.error('Error fetching clients:', error);
+                clientList.innerHTML = `<div class="alert alert-danger">Error loading clients: ${error.message}</div>`;
+            }
+        }
+        
+        async function fetchAPConfig() {
+            try {
+                const response = await fetch('/api/wifi/status');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                
+                // Populate form with current settings
+                if (data.ap) {
+                    document.getElementById('ssid').value = data.ap.ssid || '';
+                    document.getElementById('channel').value = data.ap.channel || '1';
+                    document.getElementById('max-connections').value = data.ap.max_connections || '4';
+                    document.getElementById('hidden').checked = data.ap.hidden || false;
+                    document.getElementById('captive-portal').checked = data.ap.captive_portal !== false;
+                }
+            } catch (error) {
+                console.error('Error fetching AP config:', error);
+                showAlert('danger', `Error loading configuration: ${error.message}`);
+            }
+        }
+        
+        async function updateAPConfig() {
+            try {
+                const formData = new FormData(apConfigForm);
+                const data = {
+                    ssid: formData.get('ssid'),
+                    channel: parseInt(formData.get('channel')),
+                    max_connections: parseInt(formData.get('max_connections')),
+                    hidden: formData.get('hidden') === 'on',
+                    captive_portal: formData.get('captive_portal') === 'on'
+                };
+                
+                // Only include password if it's not empty
+                const password = formData.get('password');
+                if (password) {
+                    data.password = password;
+                }
+                
+                const response = await fetch('/api/wifi/ap', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('Network response was not ok');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showAlert('success', 'Configuration updated successfully');
+                    // Clear password field
+                    document.getElementById('password').value = '';
+                } else {
+                    showAlert('danger', result.message || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error updating AP config:', error);
+                showAlert('danger', `Error updating configuration: ${error.message}`);
+            }
+        }
+        
+        async function restartAP() {
+            if (!confirm('Are you sure you want to restart the access point? All clients will be disconnected.')) {
+                return;
+            }
+            
+            try {
+                // First stop the AP
+                await fetch('/api/wifi/ap', { method: 'DELETE' });
+                
+                // Then start it again with current config
+                const formData = new FormData(apConfigForm);
+                const data = {
+                    ssid: formData.get('ssid'),
+                    channel: parseInt(formData.get('channel')),
+                    max_connections: parseInt(formData.get('max_connections')),
+                    hidden: formData.get('hidden') === 'on',
+                    captive_portal: formData.get('captive_portal') === 'on'
+                };
+                
+                // Only include password if it's not empty
+                const password = formData.get('password');
+                if (password) {
+                    data.password = password;
+                }
+                
+                const response = await fetch('/api/wifi/ap', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('Network response was not ok');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showAlert('success', 'Access point restarted successfully');
+                    // Clear password field
+                    document.getElementById('password').value = '';
+                } else {
+                    showAlert('danger', result.message || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error restarting AP:', error);
+                showAlert('danger', `Error restarting access point: ${error.message}`);
+            }
+        }
+        
+        // Helper functions
+        function updateStatusDisplay(data) {
+            if (!data) return;
+            
+            let html = '<ul class="list-group">';
+            
+            // Mode
+            html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                Mode
+                <span class="badge bg-primary">${data.mode || 'Unknown'}</span>
+            </li>`;
+            
+            // AP info
+            if (data.ap) {
+                html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                    SSID
+                    <span class="badge bg-secondary">${data.ap.ssid || 'Unknown'}</span>
+                </li>`;
+                
+                html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                    IP Address
+                    <span class="badge bg-info text-dark">${data.ap.ip || 'Unknown'}</span>
+                </li>`;
+                
+                html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                    Connected Clients
+                    <span class="badge bg-success">${data.ap.clients || 0}</span>
+                </li>`;
+            }
+            
+            html += '</ul>';
+            apStatus.innerHTML = html;
+            
+            // Update client count badge
+            if (data.ap && data.ap.clients !== undefined) {
+                clientCount.textContent = data.ap.clients;
+            }
+        }
+        
+        function updateClientList(clients) {
+            if (!clients || clients.length === 0) {
+                clientList.innerHTML = '<div class="alert alert-info">No clients connected</div>';
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-striped">';
+            html += '<thead><tr><th>IP Address</th><th>MAC Address</th><th>Connected</th><th>Actions</th></tr></thead>';
+            html += '<tbody>';
+            
+            clients.forEach(client => {
+                const connectedTime = client.connection_duration 
+                    ? formatDuration(client.connection_duration)
+                    : 'Unknown';
+                
+                html += `<tr>
+                    <td>${client.ip_address || 'Unknown'}</td>
+                    <td>${client.mac_address || 'Unknown'}</td>
+                    <td>${connectedTime}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger disconnect-btn" data-mac="${client.mac_address}">
+                            Disconnect
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            clientList.innerHTML = html;
+            
+            // Add event listeners to disconnect buttons
+            document.querySelectorAll('.disconnect-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    disconnectClient(btn.dataset.mac);
+                });
+            });
+        }
+        
+        async function disconnectClient(macAddress) {
+            if (!confirm(`Are you sure you want to disconnect client ${macAddress}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/wifi/clients/${macAddress}/disconnect`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) throw new Error('Network response was not ok');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showAlert('success', 'Client disconnected successfully');
+                    fetchClients();
+                } else {
+                    showAlert('danger', result.message || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error disconnecting client:', error);
+                showAlert('danger', `Error disconnecting client: ${error.message}`);
+            }
+        }
+        
+        function formatDuration(ms) {
+            const seconds = Math.floor(ms / 1000);
+            if (seconds < 60) return `${seconds}s`;
+            
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ${seconds % 60}s`;
+            
+            const hours = Math.floor(minutes / 60);
+            return `${hours}h ${minutes % 60}m`;
+        }
+        
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Determine where to insert the alert based on active view
+            if (dashboardView.classList.contains('d-none')) {
+                settingsView.insertBefore(alertDiv, settingsView.firstChild);
+            } else {
+                dashboardView.insertBefore(alertDiv, dashboardView.firstChild);
+            }
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+                setTimeout(() => alertDiv.remove(), 150);
+            }, 5000);
+        }
+        
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchStatus();
+            connectWebSocket();
+        });
+    </script>
+</body>
+</html>

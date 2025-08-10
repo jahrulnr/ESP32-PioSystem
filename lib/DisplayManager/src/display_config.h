@@ -1,0 +1,30 @@
+#ifndef DISPLAY_CONFIG_H
+#define DISPLAY_CONFIG_H
+
+// Display Configuration
+#define SCREEN_WIDTH  240
+#define SCREEN_HEIGHT 240
+
+// Timing Configuration
+#define SLEEP_TIMEOUT (1000*60)
+#define UPDATE_INTERVAL 300
+
+// UI Colors
+#define COLOR_BG        TFT_BLACK
+#define COLOR_TEXT      TFT_WHITE
+#define COLOR_SELECT    TFT_BLUE
+#define COLOR_BORDER    TFT_GREEN
+#define COLOR_TITLE     TFT_CYAN
+#define COLOR_ERROR     TFT_RED
+#define COLOR_SUCCESS   TFT_GREEN
+#define COLOR_HIGHLIGHT TFT_WHITE
+#define COLOR_WARNING   TFT_ORANGE
+#define COLOR_SUCCESS_DARK TFT_DARKGREEN
+#define COLOR_ERROR_DARK TFT_MAROON
+
+// Toast colors
+#define COLOR_TOAST_BG    TFT_NAVY
+#define COLOR_TOAST_TEXT  TFT_WHITE
+#define COLOR_TOAST_BORDER TFT_BLUE
+
+#endif // OS_CONFIG_H
