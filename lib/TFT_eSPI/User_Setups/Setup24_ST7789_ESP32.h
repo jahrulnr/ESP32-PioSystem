@@ -13,13 +13,13 @@
 // #define TFT_INVERSION_ON
 // #define TFT_INVERSION_OFF
 
-#define TFT_BL 11
+#define TFT_BL 13
 #define TFT_BACKLIGHT_ON HIGH
 
 // Generic ESP32 setup
 #define TFT_MISO -1
-#define TFT_MOSI 13
-#define TFT_SCLK 14
+#define TFT_MOSI MOSI // 11
+#define TFT_SCLK SCL // 9
 #define TFT_CS   -1 // Not connected
 #define TFT_DC   12
 #define TFT_RST  10  // Connect reset to ensure display initialises
@@ -38,7 +38,11 @@
 
 // #define SPI_FREQUENCY  27000000
 // #define SPI_FREQUENCY  40000000
-#define SPI_FREQUENCY  80000000
+// #define SPI_FREQUENCY  (SPI_CLOCK_DIV2 * 10) // 80Mhz
+// #define SPI_FREQUENCY  120000000 // 120Mhz
+// #define SPI_FREQUENCY  240000000 // 240Mhz
+// #define SPI_FREQUENCY  480000000 // 480Mhz
+#define SPI_FREQUENCY  1000000000 // 1Ghz
 // #define SPI_FREQUENCY  0
 
 #define SPI_READ_FREQUENCY  0

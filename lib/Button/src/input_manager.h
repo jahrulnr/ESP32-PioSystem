@@ -7,7 +7,7 @@
 #define BUTTON_SLEEP  BOOT_PIN
 #define BUTTON_UP     4
 #define BUTTON_DOWN   5
-#define BUTTON_SELECT 9
+#define BUTTON_SELECT 14
 #define BUTTON_BACK   6
 #define DEBOUNCE_DELAY 50
 
