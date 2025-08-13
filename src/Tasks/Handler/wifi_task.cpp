@@ -57,6 +57,8 @@ void connectToWiFi(void* param) {
 				DEBUG_PRINTF("Successfully connected to %s\n", savedSSID.c_str());
 				displayManager.showToast("Connected to " + savedSSID);
 				connected = true;
+
+				DEBUG_PRINTF("%s bridged accesspoin to wifi connection\n", wifiManager.enableBridgeMode() ? "Successfully" : "Failed");
 				break; // Exit loop after successful connection
 			} else {
 				DEBUG_PRINTF("Failed to connect to %s\n", savedSSID.c_str());

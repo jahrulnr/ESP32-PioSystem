@@ -2,6 +2,7 @@
 
 MenuState currentMenu = MENU_MAIN;
 int selectedMenuItem = 0;
+int selectedDeviceIndex = 0;
 
 void drawMainMenu() {
   displayManager.clearScreen();
@@ -11,7 +12,6 @@ void drawMainMenu() {
   const char* menuItems[] = {
     "WiFi Status",
     "Scan Networks",
-    "Hotspot Status",
     "Connected Clients",
     "IoT Devices",
     "Settings"
@@ -20,7 +20,9 @@ void drawMainMenu() {
   int startY = 40;
   int itemHeight = 20;
   
-  for (int i = 0; i < MAX_MENU_ITEMS; i++) {
+  const int numMenuItems = sizeof(menuItems) / sizeof(menuItems[0]);
+  // keep use _min. this is the recommendation from Arduino.h
+  for (int i = 0; i < _min((int)MAX_MENU_ITEMS, numMenuItems); i++) {
     uint16_t textColor = (i == selectedMenuItem) ? TFT_YELLOW : TFT_WHITE;
     String menuText = (i == selectedMenuItem) ? "> " + String(menuItems[i]) : "  " + String(menuItems[i]);
     displayManager.drawCenteredText(menuText, startY + i * itemHeight, textColor);

@@ -6,6 +6,8 @@ SemaphoreHandle_t displayMutex = NULL;
 
 WiFiManager wifiManager("PioSystem", "tes12345");
 AsyncWebServer server(80);
+HttpClientManager* httpClientManager;
+IoTDeviceManager* iotDeviceManager;
 
 void initialize() {
   // Create synchronization primitives first
@@ -52,41 +54,47 @@ void initialize() {
     
     // Register WiFi event handler
     wifiManager.setEventCallback([](WiFiEvent_t event, WiFiEventInfo_t info) {
-      if (event == ARDUINO_EVENT_WIFI_AP_STACONNECTED) {
-        char macStr[18] = { 0 };
-        sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X",
-          info.wifi_ap_staconnected.mac[0], info.wifi_ap_staconnected.mac[1],
-          info.wifi_ap_staconnected.mac[2], info.wifi_ap_staconnected.mac[3],
-          info.wifi_ap_staconnected.mac[4], info.wifi_ap_staconnected.mac[5]);
-        
-        DEBUG_PRINTF("Client connected: %s\n", macStr);
-        
-        // Update display with new client information
-        if (displayMutex != NULL && xSemaphoreTake(displayMutex, pdMS_TO_TICKS(1000)) == pdTRUE) {
-          displayWiFiStatus();
-          xSemaphoreGive(displayMutex);
-        }
-      } else if (event == ARDUINO_EVENT_WIFI_AP_STADISCONNECTED) {
-        char macStr[18] = { 0 };
-        sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X",
-          info.wifi_ap_stadisconnected.mac[0], info.wifi_ap_stadisconnected.mac[1],
-          info.wifi_ap_stadisconnected.mac[2], info.wifi_ap_stadisconnected.mac[3],
-          info.wifi_ap_stadisconnected.mac[4], info.wifi_ap_stadisconnected.mac[5]);
+      uint32_t ipAddr = info.got_ip.ip_info.ip.addr;
+      IPAddress clientIP(ipAddr);
+      char macStr[18] = { 0 };
+      switch (event) {
+        case ARDUINO_EVENT_WIFI_AP_STACONNECTED:
+          sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X",
+            info.wifi_ap_staconnected.mac[0], info.wifi_ap_staconnected.mac[1],
+            info.wifi_ap_staconnected.mac[2], info.wifi_ap_staconnected.mac[3],
+            info.wifi_ap_staconnected.mac[4], info.wifi_ap_staconnected.mac[5]);
           
-        DEBUG_PRINTF("Client disconnected: %s\n", macStr);
-        
-        // Update display with client information
-        if (displayMutex != NULL && xSemaphoreTake(displayMutex, pdMS_TO_TICKS(1000)) == pdTRUE) {
-          displayWiFiStatus();
-          xSemaphoreGive(displayMutex);
-        }
+          DEBUG_PRINTF("Client connected: %s\n", macStr);
+          break;
+        case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED:
+          sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X",
+            info.wifi_ap_stadisconnected.mac[0], info.wifi_ap_stadisconnected.mac[1],
+            info.wifi_ap_stadisconnected.mac[2], info.wifi_ap_stadisconnected.mac[3],
+            info.wifi_ap_stadisconnected.mac[4], info.wifi_ap_stadisconnected.mac[5]);
+            
+          DEBUG_PRINTF("Client disconnected: %s\n", macStr);
+          break;
+        case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:
+          sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X",
+            info.wifi_ap_staipassigned.mac[0], info.wifi_ap_staipassigned.mac[1],
+            info.wifi_ap_staipassigned.mac[2], info.wifi_ap_staipassigned.mac[3],
+            info.wifi_ap_staipassigned.mac[4], info.wifi_ap_staipassigned.mac[5]);
+          DEBUG_PRINTF("Client assigned: %s\n", macStr);
+          break;
       }
     });
-    
-    displayWiFiStatus();
   } else {
     DEBUG_PRINTLN("Failed to start WiFi AP");
   }
+
+  // Initialize HTTP client manager
+  httpClientManager = new HttpClientManager();
+  httpClientManager->setDebugEnabled(true);
+  httpClientManager->begin();
+
+  // Initialize IoT Device Manager
+  iotDeviceManager = new IoTDeviceManager(&wifiManager, httpClientManager);
+  iotDeviceManager->begin();
 
   setupTasks();
 }

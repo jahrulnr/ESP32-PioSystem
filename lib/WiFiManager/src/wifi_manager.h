@@ -197,6 +197,9 @@ public:
      * @param info WiFi event information
      */
     void handleEvent(WiFiEvent_t event, WiFiEventInfo_t info);
+    
+    // Internal method to update client information
+    void updateClientInfo(const uint8_t* mac, const IPAddress& ip, bool isConnecting = true);
 
 private:
     // Default AP credentials
@@ -215,9 +218,6 @@ private:
     
     // Client tracking
     std::vector<ClientInfo> _connectedClients;
-    
-    // Internal method to update client information
-    void updateClientInfo(const uint8_t* mac, const IPAddress& ip, bool isConnecting = true);
 };
 
 #endif // WIFI_MANAGER_H

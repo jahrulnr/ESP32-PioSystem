@@ -61,6 +61,7 @@ void handleButtonEvents() {
     case MENU_WIFI_STATUS:
       // In WiFi status screen, BACK button returns to main menu
       if (inputManager.wasPressed(BTN_BACK)) {
+        stopCameraStream(); // Stop any active streaming
         currentMenu = MENU_MAIN;
         drawMainMenu();
         inputManager.clearButton(BTN_BACK);
@@ -70,6 +71,7 @@ void handleButtonEvents() {
     case MENU_WIFI_SCAN:
       // In WiFi scan screen, BACK button returns to main menu
       if (inputManager.wasPressed(BTN_BACK)) {
+        stopCameraStream(); // Stop any active streaming
         currentMenu = MENU_MAIN;
         drawMainMenu();
         inputManager.clearButton(BTN_BACK);
@@ -79,6 +81,7 @@ void handleButtonEvents() {
     case MENU_SETTINGS:
       // In settings screen, BACK button returns to main menu
       if (inputManager.wasPressed(BTN_BACK)) {
+        stopCameraStream(); // Stop any active streaming
         currentMenu = MENU_MAIN;
         drawMainMenu();
         inputManager.clearButton(BTN_BACK);
@@ -88,6 +91,7 @@ void handleButtonEvents() {
     case MENU_CLIENTS:
       // In clients screen, BACK button returns to main menu
       if (inputManager.wasPressed(BTN_BACK)) {
+        stopCameraStream(); // Stop any active streaming
         currentMenu = MENU_MAIN;
         drawMainMenu();
         inputManager.clearButton(BTN_BACK);
@@ -97,17 +101,89 @@ void handleButtonEvents() {
     case MENU_IOT_DEVICES:
       // In IoT devices screen, BACK button returns to main menu
       if (inputManager.wasPressed(BTN_BACK)) {
+        stopCameraStream(); // Stop any active streaming
         currentMenu = MENU_MAIN;
         drawMainMenu();
         inputManager.clearButton(BTN_BACK);
       }
-      // SELECT button triggers a manual scan
+      // SELECT button goes to device list
       if (inputManager.wasPressed(BTN_SELECT)) {
+        currentMenu = MENU_IOT_DEVICE_LIST;
+        selectedDeviceIndex = 0;
+        displayIoTDeviceList();
+        inputManager.clearButton(BTN_SELECT);
+      }
+      // UP/DOWN buttons trigger manual scan
+      if (inputManager.wasPressed(BTN_UP) || inputManager.wasPressed(BTN_DOWN)) {
         if (iotDeviceManager != nullptr) {
           iotDeviceManager->startManualScan();
         }
         displayIoTDevices(); // Refresh the display
+        inputManager.clearButton(BTN_UP);
+        inputManager.clearButton(BTN_DOWN);
+      }
+      break;
+      
+    case MENU_IOT_DEVICE_LIST:
+      // Device list navigation
+      if (inputManager.wasPressed(BTN_BACK)) {
+        currentMenu = MENU_IOT_DEVICES;
+        displayIoTDevices();
+        inputManager.clearButton(BTN_BACK);
+      }
+      
+      if (inputManager.wasPressed(BTN_UP)) {
+        if (iotDeviceManager != nullptr) {
+          std::vector<IoTDevice> devices = iotDeviceManager->getOnlineDevices();
+          if (!devices.empty()) {
+            selectedDeviceIndex = (selectedDeviceIndex > 0) ? selectedDeviceIndex - 1 : devices.size() - 1;
+            displayIoTDeviceList();
+          }
+        }
+        inputManager.clearButton(BTN_UP);
+      }
+      
+      if (inputManager.wasPressed(BTN_DOWN)) {
+        if (iotDeviceManager != nullptr) {
+          std::vector<IoTDevice> devices = iotDeviceManager->getOnlineDevices();
+          if (!devices.empty()) {
+            selectedDeviceIndex = (selectedDeviceIndex < (int)devices.size() - 1) ? selectedDeviceIndex + 1 : 0;
+            displayIoTDeviceList();
+          }
+        }
+        inputManager.clearButton(BTN_DOWN);
+      }
+      
+      if (inputManager.wasPressed(BTN_SELECT)) {
+        if (iotDeviceManager != nullptr) {
+          std::vector<IoTDevice> devices = iotDeviceManager->getOnlineDevices();
+          if (selectedDeviceIndex < (int)devices.size()) {
+            const IoTDevice& device = devices[selectedDeviceIndex];
+            
+            // Check if device has camera capability
+            if (device.capabilities & static_cast<uint32_t>(DeviceCapability::CAMERA)) {
+              currentMenu = MENU_CAMERA_STREAM;
+              displayCameraStream();
+            } else {
+              displayManager.showToast("Device has no camera capability", 3000);
+            }
+          }
+        }
         inputManager.clearButton(BTN_SELECT);
+      }
+      break;
+      
+    case MENU_CAMERA_STREAM:
+      // Camera stream menu
+      if (inputManager.wasPressed(BTN_BACK)) {
+        // Stop streaming when exiting camera menu
+        stopCameraStream();
+        currentMenu = MENU_IOT_DEVICE_LIST;
+        displayIoTDeviceList();
+        inputManager.clearButton(BTN_BACK);
+      } else {
+        // Handle camera-specific controls
+        handleCameraStreamMenu();
       }
       break;
   }
@@ -150,22 +226,17 @@ void executeMenuAction(int menuItem) {
       displayNetworkList();
       break;
       
-    case 2: // Hotspot
-      currentMenu = MENU_WIFI_STATUS;
-      displayWiFiStatus();
-      break;
-      
-    case 3: // Connected Clients
+    case 2: // Connected Clients
       currentMenu = MENU_CLIENTS;
       displayConnectedClients();
       break;
       
-    case 4: // IoT Devices
+    case 3: // IoT Devices
       currentMenu = MENU_IOT_DEVICES;
       displayIoTDevices();
       break;
       
-    case 5: // Settings
+    case 4: // Settings
       currentMenu = MENU_SETTINGS;
       displaySettings();
       break;
@@ -173,6 +244,9 @@ void executeMenuAction(int menuItem) {
 }
 
 void forceSleep() {
+  // Stop camera streaming if active
+  stopCameraStream();
+  
   DisplayManager* display = DisplayManager::getInstance();
   if (display != nullptr) {
     if (xSemaphoreTake(displayMutex, pdMS_TO_TICKS(1000)) == pdTRUE) {

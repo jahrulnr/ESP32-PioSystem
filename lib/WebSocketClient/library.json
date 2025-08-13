@@ -1,0 +1,19 @@
+{
+  "name": "WebSocketClient",
+  "version": "1.0.0",
+  "description": "WebSocket client library for ESP32 IoT device communication",
+  "keywords": ["websocket", "client", "esp32", "iot", "communication"],
+  "authors": [
+    {
+      "name": "PioSystem",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/jahrulnr/ESP32-PioSystem",
+  "dependencies": {
+    "ArduinoWebsockets": "^0.5.3"
+  },
+  "frameworks": ["arduino"],
+  "platforms": ["espressif32"]
+}

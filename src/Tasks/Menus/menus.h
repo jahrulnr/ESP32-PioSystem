@@ -12,11 +12,14 @@ enum MenuState {
   MENU_SETTINGS,
   MENU_CLIENTS,
   MENU_IOT_DEVICES,
+  MENU_IOT_DEVICE_LIST,
+  MENU_CAMERA_STREAM,
   MAX_MENU_ITEMS
 };
 
 extern MenuState currentMenu;
 extern int selectedMenuItem;
+extern int selectedDeviceIndex;
 
 void drawMainMenu();
 void executeMenuAction(int menuItem);
@@ -26,5 +29,8 @@ void displayNetworkList();
 void displayConnectedClients();
 void displaySettings();
 void displayIoTDevices();
+void displayIoTDeviceList();
+void displayCameraStream();
+void handleCameraStreamMenu();
 
 #endif

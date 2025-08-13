@@ -26,7 +26,7 @@ WiFiManager::~WiFiManager() {
     
     // Disconnect and turn off WiFi
     WiFi.disconnect(true);
-    WiFi.mode(WIFI_OFF);
+    begin(WIFI_OFF);
 }
 
 bool WiFiManager::begin(WiFiMode_t mode) {
@@ -92,7 +92,7 @@ bool WiFiManager::connectToNetwork(const String& ssid, const String& password, u
     
     // If we're in AP-only mode, switch to AP+STA
     if (_currentMode == WIFI_AP) {
-        if (!WiFi.mode(WIFI_AP_STA)) {
+        if (!begin(WIFI_AP_STA)) {
             Serial.println("Failed to switch to AP+STA mode");
             return false;
         }
@@ -101,7 +101,7 @@ bool WiFiManager::connectToNetwork(const String& ssid, const String& password, u
     }
     // If we're in OFF mode, switch to STA
     else if (_currentMode == WIFI_OFF) {
-        if (!WiFi.mode(WIFI_STA)) {
+        if (!begin(WIFI_STA)) {
             Serial.println("Failed to switch to STA mode");
             return false;
         }
@@ -119,7 +119,7 @@ bool WiFiManager::connectToNetwork(const String& ssid, const String& password, u
             
             // Restore original mode if connection failed
             if (originalMode != _currentMode) {
-                WiFi.mode(originalMode);
+                begin(originalMode);
                 _currentMode = originalMode;
                 _isBridgeModeEnabled = (_currentMode == WIFI_AP_STA);
             }
@@ -136,10 +136,10 @@ bool WiFiManager::startAccessPoint(const String& ssid, const String& password, i
     // Use default credentials if not provided
     String apSSID = (ssid.length() > 0) ? ssid : _apSSID;
     String apPassword = (password.length() > 0) ? password : _apPassword;
-    
+
     // If we're in STA-only mode, switch to AP+STA to maintain any existing connection
     if (_currentMode == WIFI_STA) {
-        if (!WiFi.mode(WIFI_AP_STA)) {
+        if (!begin(WIFI_AP_STA)) {
             Serial.println("Failed to switch to AP+STA mode");
             return false;
         }
@@ -148,7 +148,7 @@ bool WiFiManager::startAccessPoint(const String& ssid, const String& password, i
     }
     // If we're in OFF mode, switch to AP
     else if (_currentMode == WIFI_OFF) {
-        if (!WiFi.mode(WIFI_AP)) {
+        if (!begin(WIFI_AP)) {
             Serial.println("Failed to switch to AP mode");
             return false;
         }
@@ -173,7 +173,7 @@ bool WiFiManager::enableBridgeMode(bool enable) {
     if (enable) {
         // If we're in AP-only mode, we need to switch to AP+STA
         if (_currentMode == WIFI_AP) {
-            if (!WiFi.mode(WIFI_AP_STA)) {
+            if (!begin(WIFI_AP_STA)) {
                 Serial.println("Failed to switch to AP+STA mode");
                 return false;
             }
@@ -193,7 +193,7 @@ bool WiFiManager::enableBridgeMode(bool enable) {
             // If we have a WiFi connection, keep STA mode
             if (WiFi.status() == WL_CONNECTED) {
                 WiFi.softAPdisconnect(true);
-                if (!WiFi.mode(WIFI_STA)) {
+                if (!begin(WIFI_STA)) {
                     Serial.println("Failed to switch to STA-only mode");
                     return false;
                 }
@@ -202,7 +202,7 @@ bool WiFiManager::enableBridgeMode(bool enable) {
             // Otherwise, keep AP mode
             else {
                 WiFi.disconnect(true);
-                if (!WiFi.mode(WIFI_AP)) {
+                if (!begin(WIFI_AP)) {
                     Serial.println("Failed to switch to AP-only mode");
                     return false;
                 }
@@ -224,7 +224,7 @@ bool WiFiManager::disconnect() {
     }
     // If we're in STA-only mode, go to OFF mode
     else if (_currentMode == WIFI_STA) {
-        if (WiFi.mode(WIFI_OFF)) {
+        if (begin(WIFI_OFF)) {
             _currentMode = WIFI_OFF;
         } else {
             Serial.println("Failed to switch to OFF mode");
@@ -240,7 +240,7 @@ bool WiFiManager::stopAccessPoint() {
     // If we're in bridge mode, switch to STA-only mode
     if (_currentMode == WIFI_AP_STA) {
         if (WiFi.status() == WL_CONNECTED) {
-            if (WiFi.mode(WIFI_STA)) {
+            if (begin(WIFI_STA)) {
                 _currentMode = WIFI_STA;
                 _isBridgeModeEnabled = false;
             } else {
@@ -248,7 +248,7 @@ bool WiFiManager::stopAccessPoint() {
             }
         } else {
             // No WiFi connection, go to OFF mode
-            if (WiFi.mode(WIFI_OFF)) {
+            if (begin(WIFI_OFF)) {
                 _currentMode = WIFI_OFF;
                 _isBridgeModeEnabled = false;
             } else {
@@ -258,7 +258,7 @@ bool WiFiManager::stopAccessPoint() {
     }
     // If we're in AP-only mode, go to OFF mode
     else if (_currentMode == WIFI_AP) {
-        if (WiFi.mode(WIFI_OFF)) {
+        if (begin(WIFI_OFF)) {
             _currentMode = WIFI_OFF;
         } else {
             Serial.println("Failed to switch to OFF mode");
@@ -301,9 +301,12 @@ NetworkInfo WiFiManager::getCurrentConnection() {
 
 void WiFiManager::setEventCallback(std::function<void(WiFiEvent_t event, WiFiEventInfo_t info)> callback) {
     _eventCallback = callback;
+    WiFi.onEvent(_eventCallback);
 }
 
 void WiFiManager::handleEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
+    uint32_t ipAddr = info.got_ip.ip_info.ip.addr;
+    IPAddress clientIP(ipAddr);
     // Process events internally as needed
     switch (event) {
         case ARDUINO_EVENT_WIFI_STA_GOT_IP:
@@ -313,15 +316,37 @@ void WiFiManager::handleEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
         case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
             Serial.println("WiFi lost connection");
             break;
+        case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:
+            {
+                Serial.printf("Client assigned IP: %s\n", clientIP.toString());
+                bool assigned = false;
+                for (auto& client : _connectedClients) {
+                    if (client.ipAddress == "0.0.0.0") {
+                        client.ipAddress = clientIP.toString();
+                        Serial.printf("Assigned IP %s to client %s\n", client.ipAddress.c_str(), client.macAddress.c_str());
+                        assigned = true;
+                        break;
+                    }
+                }
+                
+                if (!assigned) {
+                    updateClientInfo(info.wifi_ap_staipassigned.mac, clientIP, true);
+                }
+            }
+            break;
         case ARDUINO_EVENT_WIFI_AP_STACONNECTED:
-            Serial.println("Client connected to AP");
-            // Track the connected client
-            updateClientInfo(info.wifi_ap_staconnected.mac, IPAddress(0, 0, 0, 0), true);
+            {
+                Serial.printf("Client connected to AP: %s\n", clientIP.toString());
+                // Track the connected client
+                updateClientInfo(info.wifi_ap_staconnected.mac, IPAddress(0,0,0,0), true);
+            }
             break;
         case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED:
-            Serial.println("Client disconnected from AP");
-            // Remove the disconnected client from tracking
-            updateClientInfo(info.wifi_ap_stadisconnected.mac, IPAddress(0, 0, 0, 0), false);
+            {
+                Serial.printf("Client disconnected from AP: %s\n", clientIP.toString());
+                // Remove the disconnected client from tracking
+                updateClientInfo(info.wifi_ap_stadisconnected.mac, IPAddress(0,0,0,0), false);
+            }
             break;
     }
     
@@ -376,13 +401,13 @@ std::vector<ClientInfo> WiFiManager::getConnectedClients() {
         // the DHCP lease table. In a real implementation, this would require
         // platform-specific code that would change between ESP-IDF versions.
         // For simplicity, we'll use WiFi.softAPIP() network with last byte from MAC
-        if (client.ipAddress == "0.0.0.0") {
-            IPAddress baseIp = WiFi.softAPIP();
-            // Use the last byte of the MAC as a probable last byte for the IP
-            // This is just a heuristic and might not be accurate
-            IPAddress probableIp(baseIp[0], baseIp[1], baseIp[2], stationList.sta[i].mac[5]);
-            client.ipAddress = probableIp.toString();
-        }
+        // if (client.ipAddress == "0.0.0.0") {
+        //     IPAddress baseIp = WiFi.softAPIP();
+        //     // Use the last byte of the MAC as a probable last byte for the IP
+        //     // This is just a heuristic and might not be accurate
+        //     IPAddress probableIp(baseIp[0], baseIp[1], baseIp[2], stationList.sta[i].mac[5]);
+        //     client.ipAddress = probableIp.toString();
+        // }
         
         // Get hostname (may require additional lookup)
         client.hostname = getClientHostname(client.ipAddress);

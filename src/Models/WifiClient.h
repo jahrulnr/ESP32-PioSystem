@@ -95,19 +95,19 @@ public:
     static WifiClient fromJson(const JsonObject& json) {
         WifiClient client;
         
-        if (json.containsKey("mac_address"))
+        if (json["mac_address"].is<String>())
             client.macAddress = json["mac_address"].as<String>();
             
-        if (json.containsKey("ip_address"))
+        if (json["ip_address"].is<String>())
             client.ipAddress = json["ip_address"].as<String>();
             
-        if (json.containsKey("connection_time"))
+        if (json["connection_time"].is<unsigned long>())
             client.connectionTime = json["connection_time"].as<unsigned long>();
             
-        if (json.containsKey("hostname"))
+        if (json["hostname"].is<String>())
             client.hostname = json["hostname"].as<String>();
             
-        if (json.containsKey("rssi"))
+        if (json["rssi"].is<int>())
             client.rssi = json["rssi"].as<int>();
             
         return client;

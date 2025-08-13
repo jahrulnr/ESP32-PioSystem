@@ -5,6 +5,8 @@
 #include <ESPAsyncWebServer.h>
 #include "display_manager.h"
 #include "wifi_manager.h"
+#include "httpclient.h"
+#include "iot_device_manager.h"
 #include "Handler/tasks.h"
 #include "Menus/menus.h"
 

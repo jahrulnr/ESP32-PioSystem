@@ -1,0 +1,29 @@
+{
+  "name": "JPEGDEC",
+  "version": "1.2.7-esp32s3-optimized",
+  "description": "A fast JPEG library with ESP32-S3 SIMD optimizations, memory management, and TFT display integration. Includes fast downscaling options and the ability to view Exif embedded thumbnails. Supports baseline grayscale and color images with Huffman encoding. Optimized for IoT devices with limited memory.",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/bitbank2/JPEGDEC"
+  },
+  "authors":
+  [
+    {
+      "name": "Larry Bank"
+    },
+    {
+      "name": "ESP32-S3 Optimizations",
+      "maintainer": true
+    }
+  ],
+  "license": "Apache License 2.0",
+  "homepage": "https://github.com/bitbank2/JPEGDEC",
+  "frameworks": "*",
+  "platforms": "*",
+  "build": {
+    "flags": [
+      "-DESP32S3_SIMD"
+    ]
+  }
+}

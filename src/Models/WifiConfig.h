@@ -66,25 +66,25 @@ public:
     static WifiConfig fromJson(const JsonObject& json) {
         WifiConfig config;
         
-        if (json.containsKey("ssid"))
+        if (json["ssid"].is<String>())
             config.ssid = json["ssid"].as<String>();
             
-        if (json.containsKey("password"))
+        if (json["password"].is<String>())
             config.password = json["password"].as<String>();
             
-        if (json.containsKey("channel"))
+        if (json["channel"].is<int>())
             config.setChannel(json["channel"].as<int>());
             
-        if (json.containsKey("hidden"))
+        if (json["hidden"].is<bool>())
             config.hidden = json["hidden"].as<bool>();
             
-        if (json.containsKey("max_connections"))
+        if (json["max_connections"].is<int>())
             config.setMaxConnections(json["max_connections"].as<int>());
             
-        if (json.containsKey("captive_portal"))
+        if (json["captive_portal"].is<bool>())
             config.captivePortal = json["captive_portal"].as<bool>();
             
-        if (json.containsKey("hostname"))
+        if (json["hostname"].is<String>())
             config.hostname = json["hostname"].as<String>();
             
         return config;

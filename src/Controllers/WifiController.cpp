@@ -54,10 +54,10 @@ Response WifiController::scan(Request& request) {
     doc["status"] = "success";
     doc["count"] = networks.size();
     
-    JsonArray networksArray = doc.createNestedArray("networks");
+    JsonArray networksArray = doc["networks"].to<JsonArray>();
     
     for (const auto& network : networks) {
-        JsonObject netObj = networksArray.createNestedObject();
+        JsonObject netObj = networksArray.add<JsonObject>();
         netObj["ssid"] = network.ssid;
         netObj["bssid"] = network.bssid;
         netObj["rssi"] = network.rssi;
@@ -131,10 +131,10 @@ Response WifiController::getClients(Request& request) {
     std::vector<ClientInfo> clients = wifiManager->getConnectedClients();
     doc["count"] = clients.size();
     
-    JsonArray clientsArray = doc.createNestedArray("clients");
+    JsonArray clientsArray = doc["clients"].to<JsonArray>();
     
     for (const auto& client : clients) {
-        JsonObject clientObj = clientsArray.createNestedObject();
+        JsonObject clientObj = clientsArray.add<JsonObject>();
         clientObj["mac_address"] = client.macAddress;
         clientObj["ip_address"] = client.ipAddress;
         clientObj["hostname"] = client.hostname;

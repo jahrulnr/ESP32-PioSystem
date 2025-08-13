@@ -1,6 +1,9 @@
 #include "tasks.h"
 
 void setupTasks() {
+  // Initialize camera stream task handle
+  cameraStreamTaskHandle = NULL;
+  
   // Create FreeRTOS tasks
   xTaskCreatePinnedToCore(
     inputTask,                // Task function
@@ -51,4 +54,20 @@ void setupTasks() {
     &autosleepTaskHandle,     // Task handle
     0                         // Core (0 or 1)
   );
+  
+  // Set up device discovery callbacks
+  iotDeviceManager->setDeviceDiscoveredCallback([](const IoTDevice& device) {
+    DEBUG_PRINTF("New IoT device discovered: %s (%s) - %s\n", 
+                device.name.c_str(), device.ipAddress.c_str(), 
+                IoTDeviceManager::deviceTypeToString(device.type).c_str());
+  });
+  
+  iotDeviceManager->setDeviceStatusCallback([](const IoTDevice& device, bool isOnline) {
+    DEBUG_PRINTF("Device %s (%s) is now %s\n", 
+                device.name.c_str(), device.ipAddress.c_str(),
+                isOnline ? "online" : "offline");
+  });
+  
+  // Start device discovery with 30 second interval
+  iotDeviceManager->startDiscovery(30000);
 }

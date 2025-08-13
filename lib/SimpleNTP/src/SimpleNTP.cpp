@@ -381,7 +381,7 @@ JsonObject SimpleNTP::toJson(JsonDocument& doc) const {
     timeObj["date"] = getFormattedDate();
     timeObj["datetime"] = getFormattedDateTime();
     
-    JsonObject details = timeObj.createNestedObject("details");
+    JsonObject details = timeObj["details"].to<JsonObject>();
     details["year"] = timeinfo.tm_year + 1900;
     details["month"] = timeinfo.tm_mon + 1;
     details["day"] = timeinfo.tm_mday;
