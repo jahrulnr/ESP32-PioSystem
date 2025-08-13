@@ -16,6 +16,7 @@ extern TaskHandle_t displayUpdateTaskHandle;
 extern TaskHandle_t memoryMonitorTaskHandle;
 extern TaskHandle_t autosleepTaskHandle;
 extern TaskHandle_t cameraStreamTaskHandle;
+extern TaskHandle_t haiMicrophoneTaskHandle;
 
 // Forward declaration for IoTDeviceManager
 class IoTDeviceManager;
@@ -42,6 +43,11 @@ String getCurrentStreamingDevice();
 void cameraStreamTask(void* parameter);
 void updateCameraStreamDisplay(bool success, const String& errorMsg = "");
 bool triggerManualCapture();
+
+// HAI microphone functions
+void startHAIMicrophoneTask();
+void stopHAIMicrophoneTask();
+void haiMicrophoneTask(void* parameter);
 
 void printMemoryInfo(const char* message);
 

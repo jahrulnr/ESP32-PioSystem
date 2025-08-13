@@ -55,6 +55,9 @@ void setupTasks() {
     0                         // Core (0 or 1)
   );
   
+  // Start HAI microphone task on Core 0
+  startHAIMicrophoneTask();
+  
   // Set up device discovery callbacks
   iotDeviceManager->setDeviceDiscoveredCallback([](const IoTDevice& device) {
     DEBUG_PRINTF("New IoT device discovered: %s (%s) - %s\n", 

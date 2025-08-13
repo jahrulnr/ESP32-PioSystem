@@ -14,6 +14,7 @@ void drawMainMenu() {
     "Scan Networks",
     "Connected Clients",
     "IoT Devices",
+    "HAI Assistant",
     "Settings"
   };
   
@@ -22,7 +23,7 @@ void drawMainMenu() {
   
   const int numMenuItems = sizeof(menuItems) / sizeof(menuItems[0]);
   // keep use _min. this is the recommendation from Arduino.h
-  for (int i = 0; i < _min((int)MAX_MENU_ITEMS, numMenuItems); i++) {
+  for (int i = 0; i < _min(6, numMenuItems); i++) {
     uint16_t textColor = (i == selectedMenuItem) ? TFT_YELLOW : TFT_WHITE;
     String menuText = (i == selectedMenuItem) ? "> " + String(menuItems[i]) : "  " + String(menuItems[i]);
     displayManager.drawCenteredText(menuText, startY + i * itemHeight, textColor);
