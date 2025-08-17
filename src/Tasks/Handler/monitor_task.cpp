@@ -17,20 +17,9 @@ void memoryMonitorTask(void* parameter) {
     // Print memory information
     printMemoryInfo("Periodic memory check");
     
-    // Print task status if enabled
-    #if CONFIG_FREERTOS_USE_TRACE_FACILITY
-    char* taskListBuffer = (char*)malloc(1024);
-    if (taskListBuffer != NULL) {
-      DEBUG_PRINTLN("Task List:");
-      DEBUG_PRINTLN("Name          State  Priority  Stack   Num");
-      DEBUG_PRINTLN("--------------------------------------------");
-      vTaskList(taskListBuffer);
-      DEBUG_PRINTLN(taskListBuffer);
-      DEBUG_PRINTLN("--------------------------------------------");
-      
-      free(taskListBuffer);
-    }
-    #endif
+    // Print additional task information
+    DEBUG_PRINTF("Current task count: %d\n", uxTaskGetNumberOfTasks());
+    DEBUG_PRINTF("Task high water mark: %d\n", uxTaskGetStackHighWaterMark(NULL));
   }
 }
 

@@ -14,7 +14,6 @@ void drawMainMenu() {
     "Scan Networks",
     "Connected Clients",
     "IoT Devices",
-    "HAI Assistant",
     "Settings"
   };
   

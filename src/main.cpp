@@ -20,9 +20,9 @@ void setup() {
   DEBUG_PRINTLN("\n=== PioSystem Initialization ===");
   
   // Initialize system components
-  gpio_install_isr_service(ESP_INTR_FLAG_EDGE);
+  // gpio_install_isr_service(ESP_INTR_FLAG_EDGE);
   disableLoopWDT();
-  pinMode(11, OUTPUT);
+  // pinMode(11, OUTPUT);
   initialize();
     
   // Initialize MVC application

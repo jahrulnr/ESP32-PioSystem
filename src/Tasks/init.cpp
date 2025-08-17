@@ -75,11 +75,7 @@ void initialize() {
           DEBUG_PRINTF("Client disconnected: %s\n", macStr);
           break;
         case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:
-          sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X",
-            info.wifi_ap_staipassigned.mac[0], info.wifi_ap_staipassigned.mac[1],
-            info.wifi_ap_staipassigned.mac[2], info.wifi_ap_staipassigned.mac[3],
-            info.wifi_ap_staipassigned.mac[4], info.wifi_ap_staipassigned.mac[5]);
-          DEBUG_PRINTF("Client assigned: %s\n", macStr);
+          DEBUG_PRINTF("Client assigned: %s\n", clientIP.toString());
           break;
       }
     });

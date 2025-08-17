@@ -10,7 +10,7 @@ HttpClientManager::HttpClientManager() :
     _debugEnabled(false) {
 
     if (httpClientMutex == NULL) {
-        httpClientMutex = xSemaphoreCreateMutexWithCaps(MALLOC_CAP_8BIT);
+        httpClientMutex = xSemaphoreCreateMutex();
     }
     
     // Initialize statistics map with explicit values

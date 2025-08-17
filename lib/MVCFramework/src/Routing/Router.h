@@ -70,15 +70,10 @@ public:
     Router& name(const String& routeName);
     String route(const String& name, const std::map<String, String>& parameters = {});
     
-    // Controller routes
-    Router& controller(const String& path, const String& controller);
-    Router& resource(const String& path, const String& controller);
-    
     // Middleware management
     void registerMiddleware(const String& name, std::shared_ptr<Middleware> middleware);
     
     // Route matching and execution
-    bool match(const String& method, const String& path, AsyncWebServerRequest* request);
     void handleRequest(AsyncWebServerRequest* request);
     void handleWebSocketEvent(AsyncWebSocket* server, AsyncWebSocketClient* client, AwsEventType type, void* arg, uint8_t* data, size_t len);
     
@@ -95,7 +90,6 @@ private:
     Route& addRoute(const String& method, const String& path, std::function<Response(Request&)> handler);
     WebSocketRoute& addWebSocketRoute(const String& path);
     bool matchRoute(const Route& route, const String& method, const String& path, std::map<String, String>& params);
-    String compilePath(const String& path);
     Response executeMiddleware(const std::vector<String>& middleware, Request& request, std::function<Response(Request&)> next);
     WebSocketRoute* currentWsRoute = nullptr; // For chaining WebSocket handlers
 };

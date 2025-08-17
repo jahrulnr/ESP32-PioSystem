@@ -186,39 +186,10 @@ void handleButtonEvents() {
         handleCameraStreamMenu();
       }
       break;
-      
-    case MENU_HAI:
-      // Handle HAI menu navigation like other menus
-      if (inputManager.wasPressed(BTN_UP)) {
-        // Navigate up in HAI menu
-        extern HAIMenuState currentHAIMenuItem;
-        currentHAIMenuItem = (HAIMenuState)((currentHAIMenuItem - 1 + 5) % 5);
-        displayHAI();
-        inputManager.clearButton(BTN_UP);
-      }
-      if (inputManager.wasPressed(BTN_DOWN)) {
-        // Navigate down in HAI menu
-        extern HAIMenuState currentHAIMenuItem;
-        currentHAIMenuItem = (HAIMenuState)((currentHAIMenuItem + 1) % 5);
-        displayHAI();
-        inputManager.clearButton(BTN_DOWN);
-      }
-      if (inputManager.wasPressed(BTN_SELECT)) {
-        // Execute HAI action
-        extern void executeHAIAction();
-        executeHAIAction();
-        inputManager.clearButton(BTN_SELECT);
-      }
-      if (inputManager.wasPressed(BTN_BACK)) {
-        // Return to main menu
-        currentMenu = MENU_MAIN;
-        drawMainMenu();
-        inputManager.clearButton(BTN_BACK);
-      }
-      break;
   }
 
   inputManager.clearAllButtons();
+  vTaskDelay(pdMS_TO_TICKS(100));
 }
 
 void handleMenuNavigation() {
@@ -240,8 +211,6 @@ void handleMenuNavigation() {
     executeMenuAction(selectedMenuItem);
     inputManager.clearButton(BTN_SELECT);
   }
-
-  vTaskDelay(pdMS_TO_TICKS(100));
 }
 
 void executeMenuAction(int menuItem) {
@@ -266,13 +235,7 @@ void executeMenuAction(int menuItem) {
       displayIoTDevices();
       break;
       
-    case 4: // HAI Assistant
-      DEBUG_PRINTLN("Executing HAI Assistant menu action");
-      currentMenu = MENU_HAI;
-      displayHAI();
-      break;
-      
-    case 5: // Settings
+    case 4: // Settings
       currentMenu = MENU_SETTINGS;
       displaySettings();
       break;

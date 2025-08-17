@@ -2,7 +2,8 @@
 #define USER_SETUP_ID 24
 
 #define ST7789_DRIVER     // Configure all registers
-#define USE_HSPI_PORT
+// #define USE_HSPI_PORT
+#define USE_FSPI_PORT
 
 #define TFT_WIDTH  240
 #define TFT_HEIGHT 240
@@ -13,16 +14,18 @@
 // #define TFT_INVERSION_ON
 // #define TFT_INVERSION_OFF
 
-#define TFT_BL 13
+#define TFT_BL 13 // 13 putih
 #define TFT_BACKLIGHT_ON HIGH
+#define TFT_SPI_MODE SPI_MODE3
+// #define TFT_PARALLEL_8_BIT
 
 // Generic ESP32 setup
-#define TFT_MISO -1
+#define TFT_MISO MISO
 #define TFT_MOSI MOSI // 11
 #define TFT_SCLK SCL // 9
 #define TFT_CS   -1 // Not connected
 #define TFT_DC   12
-#define TFT_RST  10  // Connect reset to ensure display initialises
+#define TFT_RST  10  // 10 ungu Connect reset to ensure display initialises
 
 #define LOAD_GLCD   // Font 1. Original Adafruit 8 pixel font needs ~1820 bytes in FLASH
 #define LOAD_FONT2  // Font 2. Small 16 pixel high font, needs ~3534 bytes in FLASH, 96 characters

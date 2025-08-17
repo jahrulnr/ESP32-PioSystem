@@ -3,7 +3,7 @@
 
 // Battery level constants
 #define BATTERY_PIN            1    // GPIO pin for battery level measurement (ADC)
-#define BATTERY_CHARGING_PIN   2    // GPIO pin for battery charging
+#define BATTERY_CHARGING_PIN   20    // GPIO pin for battery charging
 
 // ADC configuration
 #define BATTERY_ADC_RESOLUTION 4095  // 12-bit ADC (0-4095)

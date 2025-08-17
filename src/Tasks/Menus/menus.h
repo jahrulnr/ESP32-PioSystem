@@ -14,17 +14,7 @@ enum MenuState {
   MENU_IOT_DEVICES,
   MENU_IOT_DEVICE_LIST,
   MENU_CAMERA_STREAM,
-  MENU_HAI,
   MAX_MENU_ITEMS
-};
-
-// HAI Menu States
-enum HAIMenuState {
-  HAI_STATUS,
-  HAI_LISTENING,
-  HAI_CALIBRATE,
-  HAI_SETTINGS,
-  HAI_EXIT
 };
 
 extern MenuState currentMenu;
@@ -42,14 +32,5 @@ void displayIoTDevices();
 void displayIoTDeviceList();
 void displayCameraStream();
 void handleCameraStreamMenu();
-void displayHAI();
-
-// HAI system external variables and functions
-extern bool haiInitialized;
-extern bool haiListening;
-extern HAIMenuState currentHAIMenuItem;
-void processHAIAudio();
-void initializeHAI();
-void executeHAIAction();
 
 #endif

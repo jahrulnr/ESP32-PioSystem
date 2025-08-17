@@ -31,8 +31,8 @@ void Application::boot() {
     }
     
     // Initialize core services
-    config = std::make_unique<Config>();
-    container = std::make_unique<ServiceContainer>();
+    config = std::unique_ptr<Config>(new Config());
+    container = std::unique_ptr<ServiceContainer>(new ServiceContainer());
     
     // Load configuration
     config->load();
@@ -48,7 +48,7 @@ void Application::boot() {
     // Set up request body handling
     Request::setupBodyHandling(server);
     
-    router = std::make_unique<Router>(server);
+    router = std::unique_ptr<Router>(new Router(server));
     
     // Register core services
     registerProviders();

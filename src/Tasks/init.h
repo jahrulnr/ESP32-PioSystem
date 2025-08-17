@@ -7,6 +7,7 @@
 #include "wifi_manager.h"
 #include "httpclient.h"
 #include "iot_device_manager.h"
+#include "AnalogMicrophone.h"
 #include "Handler/tasks.h"
 #include "Menus/menus.h"
 
@@ -14,6 +15,7 @@ extern TFT_eSPI tft;
 extern DisplayManager displayManager;
 extern WiFiManager wifiManager;
 extern AsyncWebServer server;
+extern AnalogMicrophone* analogMicrophone;
 
 extern SemaphoreHandle_t displayMutex;
 

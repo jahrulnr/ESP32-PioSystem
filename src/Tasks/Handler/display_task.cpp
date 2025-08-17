@@ -10,7 +10,7 @@ void displayUpdateTask(void* parameter) {
     // Wait for the next cycle
     vTaskDelayUntil(&lastWakeTime, updateFrequency);
     
-    if (currentMenu == MENU_WIFI_STATUS || currentMenu == MENU_CLIENTS || currentMenu == MENU_HAI) {
+    if (currentMenu == MENU_WIFI_STATUS || currentMenu == MENU_CLIENTS) {
       // Check for client info updates
       std::vector<ClientInfo> clients = wifiManager.getConnectedClients();
       if (!clients.empty()) {
@@ -30,8 +30,6 @@ void displayUpdateTask(void* parameter) {
           displayWiFiStatus();
         } else if (currentMenu == MENU_CLIENTS) {
           displayConnectedClients();
-        } else if (currentMenu == MENU_HAI) {
-          displayHAI();
         }
         xSemaphoreGive(displayMutex);
       }

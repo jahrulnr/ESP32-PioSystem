@@ -54,9 +54,15 @@ void setupTasks() {
     &autosleepTaskHandle,     // Task handle
     0                         // Core (0 or 1)
   );
-  
-  // Start HAI microphone task on Core 0
-  startHAIMicrophoneTask();
+
+  xTaskCreate(
+    microphoneListenerTask,
+    "microphoneListenerTask",
+    2048,
+    NULL,
+    5,
+    &microphoneListenerTaskHandle
+  );
   
   // Set up device discovery callbacks
   iotDeviceManager->setDeviceDiscoveredCallback([](const IoTDevice& device) {

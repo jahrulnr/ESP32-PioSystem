@@ -72,7 +72,7 @@ bool ESP32CameraDriver::executeCommand(const IoTDevice& device, const String& co
     
     if (command == "capture") {
         String url = device.baseUrl + "/api/v1/camera/capture";
-        if (params.containsKey("quality")) {
+        if (params["quality"]) {
             url += "?quality=" + params["quality"].as<String>();
         }
         

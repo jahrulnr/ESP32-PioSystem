@@ -59,7 +59,7 @@ Response ApiController::getWeather(Request& request) {
         response["status"] = "error";
         response["message"] = "Weather service unavailable";
         response["details"] = error;
-    } else if (apiResponse["cod"] != 200) {
+    } else if (apiResponse["cod"].as<int>() != 200) {
         // API returned error status
         String message = apiResponse["message"];
         DEBUG_PRINTLN("Weather API returned error: " + message);

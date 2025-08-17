@@ -305,8 +305,6 @@ void WiFiManager::setEventCallback(std::function<void(WiFiEvent_t event, WiFiEve
 }
 
 void WiFiManager::handleEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
-    uint32_t ipAddr = info.got_ip.ip_info.ip.addr;
-    IPAddress clientIP(ipAddr);
     // Process events internally as needed
     switch (event) {
         case ARDUINO_EVENT_WIFI_STA_GOT_IP:
@@ -318,7 +316,10 @@ void WiFiManager::handleEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
             break;
         case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:
             {
-                Serial.printf("Client assigned IP: %s\n", clientIP.toString());
+                // For AP IP assignment events, we need to get the IP from the event
+                uint32_t ipAddr = info.got_ip.ip_info.ip.addr;
+                IPAddress clientIP(ipAddr & 0xFF, (ipAddr >> 8) & 0xFF, (ipAddr >> 16) & 0xFF, (ipAddr >> 24) & 0xFF);
+                Serial.printf("Client assigned IP: %s\n", clientIP.toString().c_str());
                 bool assigned = false;
                 for (auto& client : _connectedClients) {
                     if (client.ipAddress == "0.0.0.0") {
@@ -329,21 +330,23 @@ void WiFiManager::handleEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
                     }
                 }
                 
+                // If no existing client found to assign IP to, create a new entry with unknown MAC
                 if (!assigned) {
-                    updateClientInfo(info.wifi_ap_staipassigned.mac, clientIP, true);
+                    uint8_t unknownMac[6] = {0, 0, 0, 0, 0, 0};
+                    updateClientInfo(unknownMac, clientIP, true);
                 }
             }
             break;
         case ARDUINO_EVENT_WIFI_AP_STACONNECTED:
             {
-                Serial.printf("Client connected to AP: %s\n", clientIP.toString());
+                Serial.println("Client connected to AP");
                 // Track the connected client
                 updateClientInfo(info.wifi_ap_staconnected.mac, IPAddress(0,0,0,0), true);
             }
             break;
         case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED:
             {
-                Serial.printf("Client disconnected from AP: %s\n", clientIP.toString());
+                Serial.println("Client disconnected from AP");
                 // Remove the disconnected client from tracking
                 updateClientInfo(info.wifi_ap_stadisconnected.mac, IPAddress(0,0,0,0), false);
             }
